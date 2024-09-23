@@ -104,7 +104,7 @@ resource "aws_eks_node_group" "tastytap_node_group" {
   cluster_name    = aws_eks_cluster.tastytap_cluster.name
   node_group_name = "tastytap-node-group"
   node_role_arn   = aws_iam_role.eks_node_group_role.arn
-  subnet_ids = module.vpc.public_subnets
+  subnet_ids      = module.vpc.public_subnets
 
   scaling_config {
     desired_size = 2
@@ -115,4 +115,28 @@ resource "aws_eks_node_group" "tastytap_node_group" {
   instance_types = ["t3.small"]
 
   depends_on = [aws_eks_cluster.tastytap_cluster]
+}
+
+# Adicionando o EBS CSI Driver
+
+data "aws_eks_addon_version" "ebs_csi_driver" {
+  addon_name         = "aws-ebs-csi-driver"
+  kubernetes_version = aws_eks_cluster.tastytap_cluster.version
+  most_recent        = true
+}
+
+resource "aws_eks_addon" "ebs_csi_driver" {
+  cluster_name               = aws_eks_cluster.tastytap_cluster.name
+  addon_name                 = "aws-ebs-csi-driver"
+  addon_version              = data.aws_eks_addon_version.ebs_csi_driver.version
+  preserve                   = true
+  resolve_conflicts_on_create = "OVERWRITE"
+  resolve_conflicts_on_update = "OVERWRITE"
+
+  depends_on = [aws_eks_node_group.tastytap_node_group]
+}
+
+resource "aws_iam_role_policy_attachment" "ebs_csi_driver_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+  role       = aws_iam_role.eks_node_group_role.name
 }
