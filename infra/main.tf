@@ -126,10 +126,6 @@ resource "aws_eks_node_group" "tastytap_node_group" {
 resource "aws_ecr_repository" "tastytap_repository" {
   name                 = "tastytap"
   image_tag_mutability = "MUTABLE"
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 resource "aws_iam_role_policy_attachment" "eks_ecr_policy" {
