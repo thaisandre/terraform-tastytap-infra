@@ -12,7 +12,7 @@ terraform {
     organization = "tastytap"
 
     workspaces {
-      prefix = "infra"
+        prefix = "terraform-tastytap-"
     }
   }
 }
