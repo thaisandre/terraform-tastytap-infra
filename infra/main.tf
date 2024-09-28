@@ -2,6 +2,10 @@ provider "aws" {
   region = var.region
 }
 
+data "aws_availability_zones" "available" {}
+
+# vpc
+
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "5.0.0"
@@ -34,7 +38,7 @@ module "vpc" {
   map_public_ip_on_launch = true
 }
 
-data "aws_availability_zones" "available" {}
+# eks
 
 resource "aws_eks_cluster" "tastytap_cluster" {
   name     = var.cluster_name
@@ -108,7 +112,7 @@ resource "aws_eks_node_group" "tastytap_node_group" {
 
   scaling_config {
     desired_size = 2
-    max_size     = 4
+    max_size     = 3
     min_size     = 1
   }
 
@@ -117,26 +121,18 @@ resource "aws_eks_node_group" "tastytap_node_group" {
   depends_on = [aws_eks_cluster.tastytap_cluster]
 }
 
-# Adicionando o EBS CSI Driver
+# ecr
 
-data "aws_eks_addon_version" "ebs_csi_driver" {
-  addon_name         = "aws-ebs-csi-driver"
-  kubernetes_version = aws_eks_cluster.tastytap_cluster.version
-  most_recent        = true
+resource "aws_ecr_repository" "tastytap_repository" {
+  name                 = "tastytap"
+  image_tag_mutability = "MUTABLE"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
-resource "aws_eks_addon" "ebs_csi_driver" {
-  cluster_name               = aws_eks_cluster.tastytap_cluster.name
-  addon_name                 = "aws-ebs-csi-driver"
-  addon_version              = data.aws_eks_addon_version.ebs_csi_driver.version
-  preserve                   = true
-  resolve_conflicts_on_create = "OVERWRITE"
-  resolve_conflicts_on_update = "OVERWRITE"
-
-  depends_on = [aws_eks_node_group.tastytap_node_group]
-}
-
-resource "aws_iam_role_policy_attachment" "ebs_csi_driver_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+resource "aws_iam_role_policy_attachment" "eks_ecr_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
   role       = aws_iam_role.eks_node_group_role.name
 }
