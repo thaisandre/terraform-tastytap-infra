@@ -1,4 +1,4 @@
-name: "Terraform Plan" #teste
+name: "Terraform Plan"
 
 on:
   push:
