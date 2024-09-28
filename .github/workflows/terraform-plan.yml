@@ -25,7 +25,7 @@ jobs:
       
     - name: Debug Variables
       run: |
-        echo "TF_ORGANIZATION: ${{ env.TF_ORGANIZATION }}"
+        echo "TF_ORGANIZATION: ${{ env.TF_CLOUD_ORGANIZATION }}"
         echo "TF_WORKSPACE: ${{ env.TF_WORKSPACE }}"
         echo "TF_API_TOKEN is set: ${{ env.TF_API_TOKEN != '' }}"
 
@@ -34,7 +34,7 @@ jobs:
       id: plan-upload
       with:
         workspace: ${{ env.TF_WORKSPACE }}
-        organization: 
+        organization: ${{ env.TF_CLOUD_ORGANIZATION }}
         directory: ${{ env.CONFIG_DIRECTORY }}
         speculative: true
         
