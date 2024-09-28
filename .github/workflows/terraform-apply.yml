@@ -38,7 +38,6 @@ jobs:
       with:
         workspace: ${{ env.TF_WORKSPACE }}
         configuration_version: ${{ steps.apply-upload.outputs.configuration_version_id }}
-        plan_only: false
         
     - name: Get Apply Output
       uses: hashicorp/tfc-workflows-github/actions/plan-output@v1.0.4
