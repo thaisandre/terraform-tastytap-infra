@@ -132,3 +132,15 @@ resource "aws_iam_role_policy_attachment" "eks_ecr_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
   role       = aws_iam_role.eks_node_group_role.name
 }
+
+resource "null_resource" "cleanup_ecr" {
+  depends_on = [aws_ecr_repository.tastytap_repository]
+
+  provisioner "local-exec" {
+    command = <<EOT
+      aws ecr list-images --repository-name tastytap --query 'imageIds[*]' --output json | jq -c '.[]' | while read img; do
+          aws ecr batch-delete-image --repository-name tastytap --image-ids "$img"
+      done
+    EOT
+  }
+}
