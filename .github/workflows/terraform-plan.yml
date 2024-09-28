@@ -23,11 +23,18 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       
+    - name: Debug Variables
+      run: |
+        echo "TF_ORGANIZATION: ${{ secrets.TF_ORGANIZATION }}"
+        echo "TF_WORKSPACE: ${{ env.TF_WORKSPACE }}"
+        echo "TF_API_TOKEN is set: ${{ secrets.TF_API_TOKEN != '' }}"
+
     - name: Upload Configuration
       uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.4
       id: plan-upload
       with:
         workspace: ${{ env.TF_WORKSPACE }}
+        organization: 
         directory: ${{ env.CONFIG_DIRECTORY }}
         speculative: true
         
