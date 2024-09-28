@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-name: "Terraform Plan" # teste
-=======
 name: "Terraform Plan"
->>>>>>> 9b3319060bca6a4a4e1ff5d7599cac13328528fc
 
 on:
   pull_request:
@@ -22,11 +18,7 @@ jobs:
       contents: read
       pull-requests: write
 
-<<<<<<< HEAD
-    steps:
-=======
    steps:
->>>>>>> 9b3319060bca6a4a4e1ff5d7599cac13328528fc
       - name: Checkout
         uses: actions/checkout@v4
 
