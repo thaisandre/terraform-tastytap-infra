@@ -9,7 +9,7 @@ on:
 env:
   TF_ORGANIZATION: "tastytap"
   TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
-  TF_WORKSPACE: "tastytap"
+  TF_WORKSPACE: "terraform-tastytap-infra"
   CONFIG_DIRECTORY: "./infra"
 
 jobs:
