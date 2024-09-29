@@ -1,11 +1,7 @@
 name: "Terraform Apply"
 
 on:
-  workflow_run:
-    workflows: ["Terraform Plan"]
-    types:
-      - completed
-  pull_request:
+  push:
     branches:
       - main
 
@@ -47,21 +43,3 @@ jobs:
 
     - name: Debug Apply Output
       run: echo "${{ toJson(steps.apply-output.outputs) }}"
-
-    - name: Update PR
-      uses: actions/github-script@v6
-      id: apply-comment
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const output = `#### Terraform Cloud Apply Output
-              \`\`\`
-              Apply Run: [View here](${{ steps.apply-run.outputs.run_link }})
-              \`\`\`
-              `;
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: output
-          });

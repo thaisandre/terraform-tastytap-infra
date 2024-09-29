@@ -1,7 +1,10 @@
-name: "Terraform Plan" #teste
+name: "Terraform Plan"
 
 on:
   pull_request:
+    branches:
+      - main
+  push:
     branches:
       - main
 
