@@ -2,8 +2,6 @@ name: "Terraform Plan"
 
 on:
   pull_request:
-    branches:
-      - main
 
 env:
   TF_CLOUD_ORGANIZATION: "tastytap"
@@ -21,14 +19,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      
-    - name: Debug Variables
-      run: |
-        echo "TF_ORGANIZATION: ${{ env.TF_CLOUD_ORGANIZATION }}"
-        echo "TF_WORKSPACE: ${{ env.TF_WORKSPACE }}"
-        echo "TF_API_TOKEN is set: ${{ env.TF_API_TOKEN != '' }}"
-    - name: List files in CONFIG_DIRECTORY
-      run: ls -la ${{ env.CONFIG_DIRECTORY }}
 
     - name: Upload Configuration
       uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.4
