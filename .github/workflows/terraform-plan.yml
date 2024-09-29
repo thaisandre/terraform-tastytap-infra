@@ -2,11 +2,6 @@ name: "Terraform Plan"
 
 on:
   pull_request:
-    branches:
-      - main
-  push:
-    branches:
-      - main
 
 env:
   TF_CLOUD_ORGANIZATION: "tastytap"
