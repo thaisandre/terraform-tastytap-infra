@@ -45,7 +45,7 @@ resource "aws_eks_cluster" "tastytap_cluster" {
   role_arn = aws_iam_role.eks_role.arn
 
   vpc_config {
-    subnet_ids = module.vpc.public_subnets
+    subnet_ids = module.vpc.private_subnets
   }
 
   depends_on = [aws_iam_role_policy_attachment.eks_policy]
@@ -142,4 +142,22 @@ resource "null_resource" "cleanup_ecr" {
       done
     EOT
   }
+}
+
+resource "aws_security_group" "vpc-link-sg" {
+  name   = "vpc-link-sg"
+  vpc_id = module.vpc.vpc_id
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_apigatewayv2_vpc_link" "vpc-link" {
+  name               = "vpc-link"
+  security_group_ids = [aws_security_group.vpc-link-sg.id]
+  subnet_ids         = module.vpc.private_subnets
 }
