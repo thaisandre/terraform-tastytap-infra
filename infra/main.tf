@@ -35,7 +35,7 @@ module "vpc" {
     Name = "tastytap-vpc"
   }
 
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 }
 
 # eks
