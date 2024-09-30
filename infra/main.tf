@@ -159,5 +159,5 @@ resource "aws_security_group" "vpc-link-sg" {
 resource "aws_apigatewayv2_vpc_link" "vpc-link" {
   name               = "vpc-link"
   security_group_ids = [aws_security_group.vpc-link-sg.id]
-  subnet_ids         = module.vpc.private_ids
+  subnet_ids         = module.vpc.private_subnet_ids
 }
