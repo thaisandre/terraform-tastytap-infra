@@ -146,7 +146,7 @@ resource "null_resource" "cleanup_ecr" {
 
 resource "aws_security_group" "vpc-link-sg" {
   name   = "vpc-link-sg"
-  vpc_id = module.vpc.id
+  vpc_id = module.vpc.vpc_id
 
   egress {
     from_port        = 0
