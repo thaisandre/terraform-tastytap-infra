@@ -35,11 +35,10 @@ jobs:
         workspace: ${{ env.TF_WORKSPACE }}
         configuration_version: ${{ steps.apply-upload.outputs.configuration_version_id }}
         
-    - name: Get Apply Output
-      uses: hashicorp/tfc-workflows-github/actions/plan-output@v1.0.4
-      id: apply-output
+    - name: Apply
+      uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.0.4
+      if: fromJSON(steps.apply-run.outputs.payload).data.attributes.actions.IsConfirmable
+      id: apply
       with:
+        run: ${{ steps.apply-run.outputs.run_id }}
         plan: ${{ fromJSON(steps.apply-run.outputs.payload).data.relationships.plan.data.id }}
-
-    - name: Debug Apply Output
-      run: echo "${{ toJson(steps.apply-output.outputs) }}"
