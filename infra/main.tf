@@ -207,7 +207,7 @@ resource "aws_lb_target_group" "tastytap_users_target_group" {
 
   health_check {
     interval            = 30
-    protocol            = "TCP"
+    protocol            = "HTTP"
     timeout             = 5
     healthy_threshold   = 2
     unhealthy_threshold = 2
@@ -227,7 +227,7 @@ resource "aws_lb_target_group" "tastytap_payments_target_group" {
 
   health_check {
     interval            = 30
-    protocol            = "TCP"
+    protocol            = "HTTP"
     timeout             = 5
     healthy_threshold   = 2
     unhealthy_threshold = 2
@@ -280,15 +280,15 @@ resource "aws_lb_listener_rule" "tastytap_payments_rule" {
   }
 }
 
-resource "aws_security_group" "nlb_sg" {
-  name        = "tastytap-nlb-sg"
-  description = "Security group for NLB"
+resource "aws_security_group" "alb_sg" {
+  name        = "tastytap-alb-sg"
+  description = "Security group for ALB"
   vpc_id      = module.vpc.vpc_id
 
   ingress {
     from_port   = 80
     to_port     = 80
-    protocol    = "tcp"
+    protocol    = "HTTP"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
