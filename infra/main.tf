@@ -161,3 +161,70 @@ resource "aws_apigatewayv2_vpc_link" "vpc-link" {
   security_group_ids = [aws_security_group.vpc-link-sg.id]
   subnet_ids         = module.vpc.private_subnets
 }
+
+# nlb
+
+resource "aws_lb" "tastytap_nlb" {
+  name               = "tastytap-nlb"
+  internal           = false
+  load_balancer_type = "network"
+  security_groups    = [aws_security_group.nlb_sg.id]
+  subnets            = module.vpc.public_subnets 
+
+  enable_deletion_protection = false
+  enable_cross_zone_load_balancing = true
+
+  tags = {
+    Name = "tastytap-nlb"
+  }
+}
+
+resource "aws_lb_target_group" "tastytap_target_group" {
+  name     = "tastytap-target-group"
+  port     = 80
+  protocol = "TCP"
+  vpc_id   = module.vpc.vpc_id
+
+  health_check {
+    interval            = 30
+    protocol            = "TCP"
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+
+  tags = {
+    Name = "tastytap-target-group"
+  }
+}
+
+resource "aws_lb_listener" "tastytap_listener" {
+  load_balancer_arn = aws_lb.tastytap_nlb.arn
+  port              = 80
+  protocol          = "TCP"
+
+  default_action {
+    type = "forward"
+    target_group_arn = aws_lb_target_group.tastytap_target_group.arn
+  }
+}
+
+resource "aws_security_group" "nlb_sg" {
+  name        = "tastytap-nlb-sg"
+  description = "Security group for NLB"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
