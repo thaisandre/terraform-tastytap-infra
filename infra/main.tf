@@ -162,27 +162,47 @@ resource "aws_apigatewayv2_vpc_link" "vpc-link" {
   subnet_ids         = module.vpc.private_subnets
 }
 
-# nlb
+# alb
 
-resource "aws_lb" "tastytap_nlb" {
-  name               = "tastytap-nlb"
+resource "aws_lb" "tastytap_alb" {
+  name               = "tastytap-alb"
   internal           = false
-  load_balancer_type = "network"
-  security_groups    = [aws_security_group.nlb_sg.id]
-  subnets            = module.vpc.public_subnets 
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb_sg.id]
+  subnets            = module.vpc.public_subnets
 
-  enable_deletion_protection = false
+  enable_deletion_protection       = false
   enable_cross_zone_load_balancing = true
 
   tags = {
-    Name = "tastytap-nlb"
+    Name = "tastytap-alb"
   }
 }
 
 resource "aws_lb_target_group" "tastytap_target_group" {
   name     = "tastytap-target-group"
-  port     = 80
-  protocol = "TCP"
+  port     = 8080
+  protocol = "HTTP"
+  vpc_id   = module.vpc.vpc_id
+
+  health_check {
+    interval            = 30
+    protocol            = "HTTP"
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    path                = "/ping" 
+  }
+
+  tags = {
+    Name = "tastytap-target-group"
+  }
+}
+
+resource "aws_lb_target_group" "tastytap_users_target_group" {
+  name     = "tastytap-users-target-group"
+  port     = 8081
+  protocol = "HTTP"
   vpc_id   = module.vpc.vpc_id
 
   health_check {
@@ -191,21 +211,72 @@ resource "aws_lb_target_group" "tastytap_target_group" {
     timeout             = 5
     healthy_threshold   = 2
     unhealthy_threshold = 2
+    path                = "/ping" 
   }
 
   tags = {
-    Name = "tastytap-target-group"
+    Name = "tastytap-users-target-group"
   }
 }
 
-resource "aws_lb_listener" "tastytap_listener" {
-  load_balancer_arn = aws_lb.tastytap_nlb.arn
+resource "aws_lb_target_group" "tastytap_payments_target_group" {
+  name     = "tastytap-payments-target-group"
+  port     = 8082
+  protocol = "HTTP"
+  vpc_id   = module.vpc.vpc_id
+
+  health_check {
+    interval            = 30
+    protocol            = "TCP"
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    path                = "/ping" 
+  }
+
+  tags = {
+    Name = "tastytap-payments-target-group"
+  }
+}
+
+resource "aws_lb_listener" "tastytap_http_listener" {
+  load_balancer_arn = aws_lb.tastytap_alb.arn
   port              = 80
-  protocol          = "TCP"
+  protocol          = "HTTP"
 
   default_action {
     type = "forward"
     target_group_arn = aws_lb_target_group.tastytap_target_group.arn
+  }
+}
+
+resource "aws_lb_listener_rule" "tastytap_users_rule" {
+  listener_arn = aws_lb_listener.tastytap_http_listener.arn
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.tastytap_users_target_group.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/users*"]
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "tastytap_payments_rule" {
+  listener_arn = aws_lb_listener.tastytap_http_listener.arn
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.tastytap_payments_target_group.arn
+  }
+
+  condition {
+    host_header {
+      values = ["/payments*"]
+    }
   }
 }
 
