@@ -166,7 +166,7 @@ resource "aws_apigatewayv2_vpc_link" "vpc-link" {
 
 resource "aws_lb" "tastytap_alb" {
   name               = "tastytap-alb"
-  internal           = false
+  internal           = true
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb_sg.id]
   subnets            = module.vpc.public_subnets
@@ -274,7 +274,7 @@ resource "aws_lb_listener_rule" "tastytap_payments_rule" {
   }
 
   condition {
-    host_header {
+    path_pattern {
       values = ["/payments*"]
     }
   }
