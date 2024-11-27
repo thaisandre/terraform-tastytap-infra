@@ -274,7 +274,7 @@ resource "aws_lb_listener_rule" "tastytap_payments_rule" {
   }
 
   condition {
-    host_header {
+    path_pattern {
       values = ["/payments*"]
     }
   }
