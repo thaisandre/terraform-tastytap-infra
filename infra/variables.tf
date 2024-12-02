@@ -19,6 +19,6 @@ variable "private_subnets" {
 }
 
 variable "cluster_name" {
-  description = "Cluster name"
+  description = "Cluster Name"
   default     = "tastytap-cluster"
 }
