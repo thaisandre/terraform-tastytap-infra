@@ -2,10 +2,7 @@ name: "Terraform Plan"
 
 on:
   pull_request:
-    branches:
-      - main
-    paths:
-      - 'infra/**'
+
 
 env:
   TF_CLOUD_ORGANIZATION: "tastytap"
