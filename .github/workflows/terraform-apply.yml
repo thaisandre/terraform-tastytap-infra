@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "infra/**"
 
 env:
   TF_CLOUD_ORGANIZATION: "tastytap"
